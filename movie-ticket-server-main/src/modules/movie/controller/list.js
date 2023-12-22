@@ -1,0 +1,37 @@
+const { sequelize } = require('../../../models');
+const logger = require('../../../utils/logger');
+
+/**
+ * Gives a list of the movie available.
+ * 
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express request object.
+ */
+const list = async (req, res) => {
+  const response = {
+    message: 'Movie list fetched successfully!',
+    status: 200,
+    success: true,
+    data: []
+  };
+
+  try {
+    const { models } = sequelize;
+    const { Movie: MovieModel } = models;
+    const { user } = req;
+
+    const data = await MovieModel.findAll();
+    response.data = data;
+
+    logger.info(`Movie fetched successfully by ${user.name}`);
+  } catch (error) {
+    response.message = error?.message;
+    response.success = false;
+    response.status = 500;
+    logger.error(`ERROR > MOVIE > LIST > ${error.message}`);
+  }
+
+  res.status(200).json(response);
+}
+
+module.exports = list;
